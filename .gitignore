@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Editor
+.vscode/
+
+# Dataset — do NOT upload the images
+aircraft-skin-defects-merged-final*/
+data/
+
+# Course admin / private notes — not for the public repo
+ADIPProjectGuidelinesSheet.pdf
+ADIPProjectRubrics.pdf
+crack-segmentation-timeline.md
+projnotes.md
+
+# Trained models / weights
+*.pt
+
+# Secrets (API keys etc.)
+.env
