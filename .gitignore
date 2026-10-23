@@ -9,6 +9,7 @@ __pycache__/
 
 # Dataset — do NOT upload the images
 aircraft-skin-defects-merged-final*/
+concrete-dataset/
 data/
 
 # Course admin / private notes — not for the public repo
