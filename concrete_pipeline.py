@@ -29,11 +29,28 @@ print("frangi max:", round(float(ridges.max()), 5), " nonzero px:", int((ridges 
 stages.append(("frangi", ridges))
 
 t = threshold_otsu(ridges)
-pred = apply_hysteresis_threshold(ridges, 0.4 * t, t)
+pred = apply_hysteresis_threshold(ridges, 0.3 * t, 0.7 * t)
 pred = remove_small_objects(closing(pred, disk(2)), 50)
 pred = dilation(pred, disk(3))        # thicken thin centreline toward GT band width
 pred = pred.astype(np.uint8) * 255
 stages.append(("prediction", pred))
+
+# --- method (a): Canny + adaptive threshold (gradient-based, on denoised) ---
+edges = cv2.Canny(den, 50, 150)
+stages.append(("canny edges", edges))
+
+adap = cv2.adaptiveThreshold(den, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                             cv2.THRESH_BINARY_INV, 15, 4)
+stages.append(("adaptive thresh", adap))
+
+# combine: adaptive-dark pixels that sit near a real Canny edge
+canny_mask = (adap > 0) & dilation(edges > 0, disk(3))
+canny_mask = remove_small_objects(closing(canny_mask, disk(2)), 50)
+canny_mask = dilation(canny_mask, disk(1))
+canny_pred = canny_mask.astype(np.uint8) * 255
+stages.append(("canny pred", canny_pred))
+
+print("CANNY SCORES:", {k: round(v, 3) for k, v in metrics.evaluate(canny_pred, gt).items()})
 
 # --- score + show (leave this at the bottom) ---
 print("SCORES:", {k: round(v, 3) for k, v in metrics.evaluate(pred, gt).items()})
